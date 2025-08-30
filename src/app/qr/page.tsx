@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { Suspense, useEffect, useState, useRef } from "react";
 import { X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function QrPage() {
+function QrPageContent() {
   const [seconds, setSeconds] = useState(180); // 3 minutes
   const [qrData, setQrData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -135,5 +135,13 @@ export default function QrPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function QrPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <QrPageContent />
+    </Suspense>
   );
 }
