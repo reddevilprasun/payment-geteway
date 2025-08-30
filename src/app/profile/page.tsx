@@ -102,7 +102,6 @@ export default function Profile() {
     setTimeout(() => setCopiedKey(false), 2000);
   };
 
-  // Handler with correct type
   const handleNotificationChange = (key: NotificationKey) => {
     setNotifications(prev => ({
       ...prev,
