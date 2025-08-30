@@ -60,14 +60,23 @@ export default function Profile() {
     }
   ]);
 
-  // Mock notification settings
-  const [notifications, setNotifications] = useState({
+  // Define the type for notification keys
+  type NotificationKey =
+    | "emailTransactions"
+    | "emailSecurity"
+    | "smsTransactions"
+    | "smsSecurity"
+    | "webhookFailures"
+    | "monthlyReports";
+
+  // Initial state with correct type
+  const [notifications, setNotifications] = useState<Record<NotificationKey, boolean>>({
     emailTransactions: true,
     emailSecurity: true,
     smsTransactions: false,
     smsSecurity: true,
     webhookFailures: true,
-    monthlyReports: true
+    monthlyReports: true,
   });
 
   const handleEditToggle = () => {
@@ -93,7 +102,8 @@ export default function Profile() {
     setTimeout(() => setCopiedKey(false), 2000);
   };
 
-  const handleNotificationChange = (key: string) => {
+  // Handler with correct type
+  const handleNotificationChange = (key: NotificationKey) => {
     setNotifications(prev => ({
       ...prev,
       [key]: !prev[key]
