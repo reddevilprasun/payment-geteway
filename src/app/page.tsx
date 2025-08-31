@@ -481,8 +481,7 @@ export default function Home() {
                     <Mail className="w-6 h-6 text-purple-600 mt-1" />
                     <div>
                       <div className="font-semibold text-gray-900">Email</div>
-                      <div className="text-gray-600">support@upigateway.com</div>
-                      <div className="text-gray-600">sales@upigateway.com</div>
+                      <div className="text-gray-600">mannasuman39@gmail.com</div>
                     </div>
                   </div>
 
@@ -490,8 +489,7 @@ export default function Home() {
                     <Phone className="w-6 h-6 text-purple-600 mt-1" />
                     <div>
                       <div className="font-semibold text-gray-900">Phone</div>
-                      <div className="text-gray-600">+91 98765 43210</div>
-                      <div className="text-gray-600">+91 87654 32109</div>
+                      <div className="text-gray-600">+91 8637014145</div>
                     </div>
                   </div>
 
@@ -500,8 +498,8 @@ export default function Home() {
                     <div>
                       <div className="font-semibold text-gray-900">Address</div>
                       <div className="text-gray-600">
-                        123 Tech Park, Sector 5<br />
-                        Gurgaon, Haryana 122001<br />
+                        Bagnan, Howrah<br />
+                        West Bengal 711303<br />
                         India
                       </div>
                     </div>

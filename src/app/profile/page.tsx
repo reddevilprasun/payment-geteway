@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   User, 
   Mail, 
@@ -11,7 +11,7 @@ import {
   CreditCard,
   Eye,
   EyeOff,
-  Copy,
+  Copy, 
   CheckCircle,
   Edit3,
   Save,
@@ -21,6 +21,8 @@ import {
   Settings,
   Lock
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState('personal');
@@ -28,6 +30,8 @@ export default function Profile() {
   const [showApiKey, setShowApiKey] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
 
   // Mock user data
   const [userInfo, setUserInfo] = useState({
@@ -41,21 +45,13 @@ export default function Profile() {
   const [editForm, setEditForm] = useState({ ...userInfo });
 
   // Mock API keys
-  const [apiKeys] = useState([
+  const [apiKeys, setApiKey] = useState([
     {
       id: 1,
       name: "Production Key",
       key: "pk_live_abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",
       created: "2024-01-15",
       lastUsed: "2 hours ago",
-      status: "active"
-    },
-    {
-      id: 2,
-      name: "Test Key",
-      key: "pk_test_xyz789abc123def456ghi789jkl012mno345pqr678stu901",
-      created: "2024-01-10",
-      lastUsed: "1 day ago",
       status: "active"
     }
   ]);
@@ -78,6 +74,31 @@ export default function Profile() {
     webhookFailures: true,
     monthlyReports: true,
   });
+
+    useEffect(() => {
+    if (typeof window !== "undefined" && !localStorage.getItem('token')) {
+      router.push('/login');
+    }else{
+      setApiKey([
+    {
+      id: 1,
+      name: "Production Key",
+      key: localStorage.getItem('token') || "",
+      created: "2024-01-15",
+      lastUsed: "2 hours ago",
+      status: "active"
+    }
+  ])
+
+      setUserInfo({
+    fullName: localStorage.getItem('name') || "",
+    email: localStorage.getItem('email') || "",
+    phone: localStorage.getItem('mobile') || "",
+    joinedDate: localStorage.getItem('created') || "",
+    lastLogin: "1 minute ago"
+  });
+    }
+  }, []);
 
   const handleEditToggle = () => {
     if (isEditing) {

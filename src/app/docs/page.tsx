@@ -117,7 +117,7 @@ export default function ApiDocs() {
 
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h4 className="font-semibold text-blue-900 mb-2">Base URL</h4>
-                  <code className="text-blue-800 bg-blue-100 px-2 py-1 rounded">https://api.upigateway.com/v1</code>
+                  <code className="text-blue-800 bg-blue-100 px-2 py-1 rounded">https://upigeteway.vercel.app/</code>
                 </div>
               </div>
             </section>
@@ -161,11 +161,21 @@ Content-Type: application/json`}
               <h2 className="text-2xl font-bold text-gray-900 mb-6">API Endpoints</h2>
 
               <div className="space-y-8">
+
+                {/* Check Payment Status */}
+                <div className="border-l-4 border-blue-500 pl-6">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">GET</span>
+                    <code className="text-gray-800">/qr?token=&#123;token&#125;&amount=666</code>
+                  </div>
+                  <p className="text-gray-600 mb-4">Create a payment request</p>
+                </div>
+
                 {/* Create Payment */}
                 <div className="border-l-4 border-green-500 pl-6">
                   <div className="flex items-center space-x-2 mb-3">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-medium">POST</span>
-                    <code className="text-gray-800">/payments/create</code>
+                    <code className="text-gray-800">/api/paytm/generate</code>
                   </div>
                   <p className="text-gray-600 mb-4">Create a new payment request</p>
 
@@ -176,11 +186,7 @@ Content-Type: application/json`}
   "amount": 1000,
   "currency": "INR",
   "order_id": "order_123456",
-  "customer": {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "9876543210"
-  },
+  "token": "your_auth_token",
   "callback_url": "https://yoursite.com/callback",
   "description": "Payment for Order #123456"
 }`}
@@ -191,52 +197,23 @@ Content-Type: application/json`}
                   <CodeBlock
                     id="create-payment-response"
                     code={`{
-  "status": 1,
-  "message": "Payment created successfully",
-  "data": {
-    "payment_id": "pay_abc123def456",
-    "payment_url": "https://checkout.upigateway.com/pay/abc123def456",
-    "qr_code": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
-    "expires_at": "2025-01-21T15:30:00Z"
-  }
+    "status": true,
+    "upi": "paytmqr5pp3m9@ptys",
+    "orderId": "b0e7dead2ce346aebf2d174ac1d910b6",
+    "intent": "upi://pay?pa=paytmqr5pp3m9@ptys&pn=Paytm%20Merchant&mc=5499&mode=02&orgid=000000&paytmqr=2810050501011UWXAK8OBZ5O&tn=b0e7dead2ce346aebf2d174ac1d910b6&tr=b0e7dead2ce346aebf2d174ac1d910b6&am=33&sign=MEUCIA2Jq8ElM16k3QQkEWiFxa4kBSlnyucLCQu6MDD/Qsf2AiEA7AweV2mrMsvrKeFN7/GFaTI2zDt2h6gwq3+3a8jKEHk=",
+    "qr": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATQAAAE0CAYAAACigc+fAAAAAklEQVR4AewaftIAABdzSURBVO3BQW4ky5LAQDKh+1+Z00tfBRCokv6bhJvZP6y11gs8rLXWSzystdZLPKy11ks8rLXWSzystdZLPKy11ks8rLXWSzystdZLPKy11ks8rLXWSzystdZLPKy11ks8rLXWSzystdZLPKy11kv88CGVv1TxCZWpYlKZKm6oTBU3VG5UTCpTxaQyVXyTylRxojJVnKicVNxQmSomlaniRGWqmFQ+UTGpTBWTyo2KSeUvVXziYa21XuJhrbVe4mGttV7ihy+r+CaVT6h8QuWk4obKScUNlROVqeJE5RMVNyomlaliqjhRuVExqUwVk8pUcaIyVUwqU8WkMqlMFZPKVPFNFd+k8k0Pa631Eg9rrfUSD2ut9RI//DKVGxU3VE4qTlSmihOVSWWqmFQ+oTJVTBUnKpPKVDFVfEJlqjhRmSpOVKaKqWJSuVHxiYq/pHKiMlV8k8qNit/0sNZaL/Gw1lov8bDWWi/xw8tUfEJlqjipmFSmikllqrihMlVMKjdUblScVJyonKicVNyomFQmlZOKE5WTipOKSWWqmFSmikllqjhRmSr+P3tYa62XeFhrrZd4WGutl/jhZVSmikllqviEyidUTipOVKaKE5Wp4obKb6q4oTJVnFR8ouJE5RMVk8qNikllqnizh7XWeomHtdZ6iYe11nqJH35Zxf+SylQxqUwVk8pU8U0Vk8pvqphUpopPVNxQmVRuVEwqU8WkMlVMKt+kMlVMKlPFVPGbKj5R8V/ysNZaL/Gw1lov8bDWWi/xw5ep/C9VTCq/SWWqmFSmikllqphUpoobKlPFDZWpYlI5UZkqTiomlaliUpkqJpWpYlKZKiaVqWJSmSomlU+oTBWTylRxQ2WqOFH5L3tYa62XeFhrrZd4WGutl7B/+H9MZao4UblR8U0qJxUnKjcqbqhMFScqU8UNlZOKE5WTihsqU8WkMlXcUJkqJpWTikllqjhROan4/+xhrbVe4mGttV7iYa21XsL+4QMqU8Wk8k0VN1SmikllqjhRmSomlZOKSWWqmFROKm6oTBUnKn+p4jepTBUnKlPFpHKjYlKZKiaVk4pJZaqYVKaKE5VvqvhND2ut9RIPa631Eg9rrfUSP/yyiknlRsWkMlXcUDlR+aaKSeVGxaRyojJVTBUnKt9U8ZdUpoqpYlI5qZhUpoobKicqJxWTylRxQ+UvqUwV3/Sw1lov8bDWWi/xsNZaL2H/8EUqU8UNld9U8QmVk4pJ5aRiUpkqPqEyVUwqU8WkMlWcqEwVk8qNikllqjhROak4UfmmiknlRsWJyknFDZWp4obKjYpPPKy11ks8rLXWSzystdZL/PAhlROVqWJSOam4oXJDZar4hMpJxUnFpPKJikllqphUpoobFX9J5UbFpDJVfKLiRGWqmFROVG5UTConFVPFpHJS8b/0sNZaL/Gw1lov8bDWWi9h//BFKlPFJ1ROKiaVGxUnKjcqvknlpGJSmSo+oTJV3FC5UTGpTBUnKicV36Ryo+JEZar4TSo3Kv7LHtZa6yUe1lrrJR7WWuslfviyihOVGxUnKjcqJpWTihOVSeVGxUnFpDKpTBUnKlPF/1LFX1I5qThRmSomlaniROVE5aRiUpkqJpUbFZPKJyomlaniEw9rrfUSD2ut9RIPa631Ej98mcqNihOVqeKk4hMVn6g4UZlUpopJZar4JpVPqEwVU8VvUjmpuKEyVZyoTBU3KiaVk4pJZao4qThRmVROKj5R8U0Pa631Eg9rrfUSD2ut9RL2Dx9QOamYVE4qbqjcqJhUpopvUpkqbqhMFScqJxW/SWWquKHyiYrfpHKjYlKZKk5UpoobKr+pYlL5RMUnHtZa6yUe1lrrJR7WWuslfviyiknlpGJS+UTFpHJD5aRiUpkqTlSmit9UMamcVEwqNyomlRsVk8pUcaLyv1RxUnGiMlVMKicVNypOVH5TxTc9rLXWSzystdZLPKy11kvYP3xA5RMVk8pUMancqJhUblRMKlPFpPKJihOVqWJSOan4hMpUMamcVEwqNyomlaliUpkq/pdUpooTlaliUpkqTlQ+UTGpTBWTylTxmx7WWuslHtZa6yUe1lrrJX74UMWkMlVMKpPKicqNiknlmyomlRsVJypTxTep/KWKSeWk4kRlqphUpopvUrlRMVXcqJhUbqicVNxQmSomlROVqeKbHtZa6yUe1lrrJR7WWusl7B++SGWqmFROKk5UvqliUrlRMalMFZ9QuVFxojJVnKhMFZPKVDGpTBUnKicVn1A5qThRuVHxCZWTikllqjhRmSomlRsVk8qNik88rLXWSzystdZLPKy11kv88CGVqeJGxYnKVPGbKn6TylRxo2JSOVG5ofIJlaliUrlRMalMFScqU8WJyknFpDJVnKh8omJSuaEyVUwqU8WkMlVMKjcqvulhrbVe4mGttV7iYa21XsL+4Rep3Kg4UZkqTlSmihsqJxUnKjcqJpWp4obKVPEJlanihspJxSdUTipOVKaKGypTxaQyVZyoTBXfpDJVnKicVJyonFR84mGttV7iYa21XuJhrbVewv7hAyo3KiaVT1RMKlPFpPKJihOVk4pJ5aRiUpkqJpWTiknlRsWJyknFpPKJihsqU8Wk8omKT6jcqJhUpooTlRsVJyonFb/pYa21XuJhrbVe4mGttV7ihy+rmFQmlaliUpkqTlROVKaKE5UTlRsVJxWfUJkqJpVJ5aRiUrlRcaIyVUwqn1C5oXJScaLyCZWTiknlv0Tlv+RhrbVe4mGttV7iYa21XsL+4QMq31QxqZxUTCpTxaRyo+JEZao4UZkqJpUbFZPKN1VMKjcqTlS+qeKbVKaKSeUTFZPKVHFDZaqYVKaKSWWqmFSmikllqphUpopvelhrrZd4WGutl3hYa62XsH/4H1I5qZhUPlFxovKJihOVT1RMKlPFJ1ROKk5UpopJZaqYVKaKE5UbFZPKjYpJZaq4ofKJikllqjhRmSpOVKaKE5WpYlKZKj7xsNZaL/Gw1lov8bDWWi9h//BFKlPFJ1S+qWJSOak4UflExaTyTRUnKicVk8pUcaIyVdxQOak4UZkqTlSmihOVqWJSOamYVKaKSWWqmFROKm6onFRMKjcqvulhrbVe4mGttV7iYa21XsL+4Q+pTBWTylQxqZxUfEJlqjhRmSpOVKaKSeWkYlI5qfhLKjcqJpWp4kRlqphUTir+y1ROKj6hMlWcqHyi4jc9rLXWSzystdZLPKy11kv88MtUpopJZaqYVE4qJpWp4kTlROU3qXxTxQ2Vk4pJ5aTiL1VMKlPFDZVvqrihMlVMKpPKjYqp4kbFicpU8Zce1lrrJR7WWuslHtZa6yXsH75I5UbFX1KZKiaVk4obKlPFpDJV3FCZKk5UpooTlaniEypTxYnKVDGpTBWTyknFDZWTihOVT1R8k8pUcaIyVUwqU8WkMlV808Naa73Ew1prvcTDWmu9xA8fUpkqTlROVE4qbqhMFZPKVPEJlaliUjlRmSp+k8pU8QmVqWKqmFROKiaVqWJSOak4UblRMalMFVPFJ1SmikllqphUpopJ5aTihspfelhrrZd4WGutl3hYa62XsH/4gMpJxQ2VqWJS+UsVk8pU8QmVqWJS+aaKSeVGxaQyVZyo3Kg4UZkqJpUbFScqU8UnVKaK36QyVdxQOamYVKaK3/Sw1lov8bDWWi/xsNZaL2H/8AGV/7KKSWWqOFGZKiaVqeKbVKaKE5Wp4hMqf6liUvlExSdUblR8QuVGxaRyUjGp/KaKv/Sw1lov8bDWWi/xsNZaL2H/8EUqU8WJylRxQ+WkYlI5qThRmSpOVKaKE5WTik+oTBWTyicqbqhMFScqJxWTyo2KE5UbFTdUTiomlanihspUcUPlRsVvelhrrZd4WGutl3hYa62X+OHLKk5UbqhMFScVJxWTyqQyVdxQmSomlaliqjhROamYVKaKv6QyVZyoTBVTxYnKScUNlanihspUMamcVEwqU8UNlRsqU8VJxYnKScUnHtZa6yUe1lrrJR7WWuslfviQylTxTRU3VKaKSeWk4qTihspUMamcVEwVk8pJxaQyVUwVN1ROKr5JZaq4oTJVTCpTxaRyo2JSOamYVP6XKm6oTBVTxaTyTQ9rrfUSD2ut9RIPa631EvYPH1C5UTGp/KaKSWWqOFGZKk5UpoobKp+omFROKiaVk4pJ5ZsqJpWp4obKVPFNKlPFJ1SmihsqJxWTyjdVnKicVHziYa21XuJhrbVe4mGttV7ihy+rOFE5qbihMlXcUJkqpoobFScqU8VJxaQyVUwqU8WJyknFpDJV3FC5UXGi8k0qU8Wk8psqJpWpYlKZKiaVSWWqmFROKm6o/KWHtdZ6iYe11nqJh7XWeokfvkzlRsWJylRxovKbVKaKSeWk4i+pfFPFicpUcVIxqdyomFROVKaKqeKkYlI5UTmpOKmYVKaKSeUTFScqU8WkMlWcqHzTw1prvcTDWmu9xMNaa73ED/9xFScVN1SmihsVk8pUMamcqEwVk8qNihsqN1SmiqliUjlROak4UZkqJpWp4obKVDFVnFScqNyomFSmihOV/5KKb3pYa62XeFhrrZd4WGutl7B/+CKVqeKGyknFDZWTikllqvgmlRsVk8pUMalMFZPKJyomlZOKE5WTihsqU8WkclJxonJSMamcVNxQmSomlaniROWk4obKjYpvelhrrZd4WGutl3hYa62XsH/4QyonFZ9Q+UTFpHJScaIyVXyTyo2KE5WpYlL5RMWkMlXcUJkqJpWpYlKZKk5UporfpDJV3FCZKm6onFScqNyo+MTDWmu9xMNaa73Ew1prvYT9wwdUTipuqJxU3FCZKk5UpopPqJxUTConFScqJxWTylRxQ2WquKFyUjGpTBWTylQxqUwVJypTxaTyiYpJZaq4oTJV3FCZKm6oTBUnKlPFJx7WWuslHtZa6yUe1lrrJX74YyonFTdUpoqpYlI5qThRmSpOKk5UPqEyVdyoOFGZKqaKSeVGxaTyiYpJZaqYVKaKE5WTim9SuVHxm1SmiqliUpkqftPDWmu9xMNaa73Ew1prvYT9wx9SmSpOVKaKE5WpYlK5UTGp3Ki4oTJV3FA5qThR+U0VJyo3KiaVk4pvUvlExaRyo2JSOak4UZkqJpUbFZPKVPFND2ut9RIPa631Eg9rrfUS9g8fUPmmihsqJxWTylQxqZxU3FCZKr5J5RMVJypTxQ2Vk4pJZaqYVE4qJpVPVEwqNypuqNyomFSmikllqphUTiomlU9UfNPDWmu9xMNaa73Ew1prvYT9wxepTBWTyl+qOFG5UTGpnFRMKt9UMalMFZPKJyomlaliUvlNFZPKScUNlRsVJypTxaRyo+IvqUwVk8onKj7xsNZaL/Gw1lov8bDWWi9h//BFKlPFicpJxV9SuVHxX6IyVfwllW+qmFROKiaVqWJSmSp+k8pUcaJyo2JSmSomlRsVN1SmikllqvjEw1prvcTDWmu9xMNaa72E/cMHVD5RMamcVEwqU8Wk8omKSWWqmFROKiaVk4oTlaniROWkYlKZKiaVqWJSmSomlanim1ROKiaVk4oTlZOKE5WpYlKZKiaVb6qYVKaKSWWqmFSmim96WGutl3hYa62XeFhrrZf44T+u4qRiUjmp+E0Vn6iYVKaKGypTxY2KGypTxaRyQ+WbKiaVqeKGyknFpDJVnKjcqJhUTiomlUllqphUTlSmit/0sNZaL/Gw1lov8bDWWi9h//CLVKaKSWWqmFSmiknlpOJEZar4hMpUMalMFZPKScWkMlWcqJxUTCo3Kk5UPlFxojJVTCpTxaQyVUwqJxWTylTxm1Smik+o3KiYVE4qvulhrbVe4mGttV7iYa21XuKHL1OZKk4qTipOKiaVSeWkYlI5qZhUpopJZaqYVKaKSWVSmSomlanipGJSmSomlaliUpkqblTcUJkqPlHxTRU3VG5U3FCZKiaVqeKGyg2VqeITD2ut9RIPa631Eg9rrfUS9g+/SOWbKiaVqWJS+UTFicqNiknlpGJSmSpOVL6pYlKZKj6hMlVMKlPFpHKjYlI5qZhUblRMKicVN1Smit+kMlWcqEwV3/Sw1lov8bDWWi/xsNZaL/HDH6s4UZkqJpUTlU9UfFPFpHJSMalMFZPKVHFS8ZdUblR8omJSmSpuVJxU3FCZKm6oTBVTxYnKScWkclIxqUwVU8WkMlV84mGttV7iYa21XuJhrbVe4ocPqUwVJyonFZPKVHFDZao4UZkqblTcqDipmFROVG6ofKJiUpkqJpUTlaniExWfULlRMalMFZ+oOFE5qThROamYVKaKE5Wp4pse1lrrJR7WWuslHtZa6yV++GUVN1SmiknlpOJEZaq4oTJVnKhMFScqNypuqEwVk8pUMalMKjcqJpWpYlK5ofKJim+qOFE5qbhRMal8k8pUMalMFVPFpDJVfOJhrbVe4mGttV7iYa21XsL+4RepTBWTylQxqZxUfJPKVDGp/KWKSWWqmFSmikllqviEyknFpHKj4kTlRsWJyicqJpWTihsqU8UnVKaKE5WTikllqvhND2ut9RIPa631Eg9rrfUSP/yyipOKSWWqmFQmlRsVk8pUMalMFScqJxWTyidUTlQ+oXKjYlL5JpWTikllUpkqpooTlaliUvmEylTxTSpTxaQyVZxUTCo3VKaKTzystdZLPKy11ks8rLXWS/zwIZWpYlKZKiaVE5WTihOVb1KZKk4qJpWp4kRlqphUvknlpGJSmVQ+UXFSMalMKp9QOamYVG5UnFRMKjdUTipOKm6o3FCZKr7pYa21XuJhrbVe4mGttV7C/uEDKlPF/ycq31QxqUwVk8pUcUNlqjhRmSomlaniROWk4kTlpOITKjcqTlRuVHxC5UbFicqNihsqNyq+6WGttV7iYa21XuJhrbVewv7hAypTxYnKScWkMlV8QmWquKEyVUwqU8Wk8omKGyo3KiaVqWJS+aaKE5WpYlKZKiaVqWJSmSpOVKaKSWWquKEyVZyonFRMKr+p4kRlqvjEw1prvcTDWmu9xMNaa73EDx+quFFxo+JE5UbFpHJSMVV8U8WkckNlqpgqbqhMFZPKScUNlUllqjhRmSomlRsVJyqfUPlNFZ+ouKEyVZyoTBXf9LDWWi/xsNZaL/Gw1lov8cOHVP5SxVQxqZyoTBXfVHFSMan8JZWTikllqphUTlSmipOKSWWqOFE5qfimipOKb1KZKk5UpoobKlPFicr/0sNaa73Ew1prvcTDWmu9xA9fVvFNKicqU8WkcqJyo+JE5aRiqrihcqIyVZxUTCrfVPGXKiaVGypTxVRxonJSMalMFd9U8YmK/08e1lrrJR7WWuslHtZa6yV++GUqNyq+qWJSOak4UTmpmFQmlaliUpkqTiomlUnlRGWqmFRuqPwmlaliUpkqJpWTiknlRsWkMqlMFScqJyo3Kk5UvqliUplUpopPPKy11ks8rLXWSzystdZL/PAyKlPFScWNikllUpkqJpWTikllqrhRcUPlROWbKiaVb1KZKiaVSWWquKFyQ+WbKk5UpooTlanihspU8Zse1lrrJR7WWuslHtZa6yV+eJmKGyo3Kk4qJpWpYlKZKm6onKicVJxU3FCZKk5UpopJZaq4UTGp3FC5UfFfVjGpTBU3VKaK/6WHtdZ6iYe11nqJh7XWeokfflnFb6qYVKaKk4pJZaq4oTJVTCo3Kj5RMamcVJyoTBU3VKaKSWWqmFROKiaVk4obKlPFDZVvqrihcqPi/5OHtdZ6iYe11nqJh7XWegn7hw+o/KWKSWWqmFSmiknlRsU3qXyi4kTlpGJSmSpOVKaKSWWqmFSmikllqjhRmSo+ofKJik+oTBUnKp+omFROKiaVqWJSmSq+6WGttV7iYa21XuJhrbVewv5hrbVe4GGttV7iYa21XuJhrbVe4mGttV7iYa21XuJhrbVe4mGttV7iYa21XuJhrbVe4mGttV7iYa21XuJhrbVe4mGttV7iYa21XuJhrbVe4v8A7uJGfmEoXuAAAAAASUVORK5CYII=",
+    "msg": "success"
 }`}
                     language="json"
                   />
                 </div>
 
-                {/* Check Payment Status */}
-                <div className="border-l-4 border-blue-500 pl-6">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">GET</span>
-                    <code className="text-gray-800">/payments/&#123;payment_id&#125;/status</code>
-                  </div>
-                  <p className="text-gray-600 mb-4">Check the status of a payment</p>
-
-                  <h5 className="font-semibold text-gray-900 mb-2">Response:</h5>
-                  <CodeBlock
-                    id="payment-status-response"
-                    code={`{
-  "status": 1,
-  "data": {
-    "payment_id": "pay_abc123def456",
-    "order_id": "order_123456",
-    "amount": 1000,
-    "currency": "INR",
-    "status": "completed",
-    "transaction_id": "txn_xyz789",
-    "created_at": "2025-01-21T14:30:00Z",
-    "completed_at": "2025-01-21T14:32:15Z"
-  }
-}`}
-                    language="json"
-                  />
-                </div>
 
                 {/* Refund Payment */}
                 <div className="border-l-4 border-orange-500 pl-6">
                   <div className="flex items-center space-x-2 mb-3">
                     <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm font-medium">POST</span>
-                    <code className="text-gray-800">/payments/&#123;payment_id&#125;/refund</code>
+                    <code className="text-gray-800">/api/paytm/check</code>
                   </div>
                   <p className="text-gray-600 mb-4">Initiate a refund for a completed payment</p>
 
@@ -244,9 +221,17 @@ Content-Type: application/json`}
                   <CodeBlock
                     id="refund-request"
                     code={`{
-  "amount": 500,
-  "reason": "Customer requested refund",
-  "refund_id": "ref_123456"
+  "token":"your_auth_token",
+  "orderId":"b0e7dead2ce346aebf2d174ac1d910b6"
+}`}
+                    language="json"
+                  />
+                         <h5 className="font-semibold text-gray-900 mb-2 mt-4">Response:</h5>
+                  <CodeBlock
+                    id="create-payment-response"
+                    code={`{
+    "status": true,
+    "msg": "success"
 }`}
                     language="json"
                   />
@@ -307,17 +292,13 @@ Content-Type: application/json`}
 
 const createPayment = async () => {
   try {
-    const response = await axios.post('https://api.upigateway.com/v1/payments/create', {
-      amount: 1000,
-      currency: 'INR',
-      order_id: 'order_123456',
-      customer: {
-        name: 'John Doe',
-        email: 'john@example.com',
-        phone: '9876543210'
-      },
-      callback_url: 'https://yoursite.com/callback',
-      description: 'Payment for Order #123456'
+    const response = await axios.post('https://upigeteway.vercel.app/api/paytm/generate', {
+      "amount": 1000,
+      "currency": "INR",
+      "order_id": "order_123456",
+      "token": "your_auth_token",
+      "callback_url": "https://yoursite.com/callback",
+      "description": "Payment for Order #123456"
     }, {
       headers: {
         'Authorization': 'Bearer YOUR_API_KEY',
@@ -345,7 +326,7 @@ createPayment();`}
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://api.upigateway.com/v1/payments/create',
+  CURLOPT_URL => 'https://upigeteway.vercel.app/api/paytm/generate',
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => '',
   CURLOPT_MAXREDIRS => 10,
@@ -357,11 +338,7 @@ curl_setopt_array($curl, array(
     'amount' => 1000,
     'currency' => 'INR',
     'order_id' => 'order_123456',
-    'customer' => array(
-      'name' => 'John Doe',
-      'email' => 'john@example.com',
-      'phone' => '9876543210'
-    ),
+    'token' => 'your_auth_token',
     'callback_url' => 'https://yoursite.com/callback',
     'description' => 'Payment for Order #123456'
   )),
@@ -435,13 +412,8 @@ echo json_encode($data, JSON_PRETTY_PRINT);
                 <CodeBlock
                   id="error-response"
                   code={`{
-  "status": 0,
-  "message": "Invalid API key",
-  "error_code": "INVALID_API_KEY",
-  "details": {
-    "field": "authorization",
-    "issue": "API key is missing or invalid"
-  }
+  "status": false,
+  "msg": "Invalid API key"
 }`}
                   language="json"
                 />

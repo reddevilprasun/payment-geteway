@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Smartphone, ArrowRight, KeyRound } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,6 +13,12 @@ export default function PaytmConnect() {
   const [isLoading, setIsLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const router = useRouter();
+
+    useEffect(() => {
+      if (typeof window !== "undefined" && !localStorage.getItem('token')) {
+        router.push('/login');
+      }
+    }, []);
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();

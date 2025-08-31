@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { useRouter } from "next/navigation";
 import Link from 'next/link';
@@ -15,6 +15,11 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
+      router.push('/dashboard');
+    }
+  }, [router]);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -29,6 +34,10 @@ export default function Login() {
       const data = await res.json();
       if (data.status === true) {
         localStorage.setItem('token', data.data.token);
+        localStorage.setItem('name', data.data.name);
+        localStorage.setItem('email', data.data.email);
+        localStorage.setItem('mobile', data.data.mobile);
+        localStorage.setItem('created', data.data.created);
         router.push('/dashboard');
       } else {
         toast.error(data.msg || "Login failed");

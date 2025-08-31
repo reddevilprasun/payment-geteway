@@ -44,11 +44,21 @@ import { useRouter } from "next/navigation";
 export default function Dashboard() {
   const router = useRouter();
   const [isPaytmConnected, setIsPaytmConnected] = useState(false);
-  const [selectedTimeRange, setSelectedTimeRange] = useState('7d');
+  const [selectedTimeRange, setSelectedTimeRange] = useState('1d');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [gatewayProfile, setGatewayProfile] = useState<any>(null);
+  const [todayStats, setTodayStats] = useState({
+    totalAmount: "₹0",
+    transactionCount: 0,
+    successRate: "100%",
+    avgTransactionValue: "₹0",
+    available: "0",
+    failedTransactions: 0
+  });
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
+    // Fetch Paytm profile
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
@@ -67,7 +77,43 @@ export default function Dashboard() {
         setGatewayProfile(null);
       }
     };
+
+    // Fetch today's stats
+    const fetchTodayStats = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        const res = await fetch("/api/paytm/today", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json();
+        if (data.status && data.data) {
+          setTodayStats({
+            totalAmount: `₹${data.data.dayWiseList[0].totalAmount.value.toLocaleString()}`,
+            transactionCount: data.data.dayWiseList[0].totalCount,
+            successRate: `100%`,
+            avgTransactionValue: `₹${(data.data.dayWiseList[0].totalAmount.value.toFloat() / data.data.dayWiseList[0].totalCount).toFixed(2)}`,
+            available: data.data.availableBalance || "-",
+            failedTransactions: 0
+          });
+        }
+      } catch (err) {
+        // Optionally handle error
+      }
+    };
+
     fetchProfile();
+    fetchTodayStats();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && localStorage.getItem('token')) {
+      setUserName(localStorage.getItem("name") || "");
+    }else{
+      router.push('/login');
+    }
   }, []);
 
   // Enhanced mock data
@@ -80,21 +126,6 @@ export default function Dashboard() {
     remainingToday: "₹37,550"
   };
 
-  const todayStats = {
-    totalAmount: "₹12,450",
-    transactionCount: 28,
-    successRate: "98.5%",
-    avgTransactionValue: "₹445",
-    peakHour: "2:00 PM",
-    failedTransactions: 1
-  };
-
-  const weeklyStats = {
-    totalRevenue: "₹87,340",
-    totalTransactions: 196,
-    avgDailyRevenue: "₹12,477",
-    growthRate: "+15.2%"
-  };
 
   // Recent transactions
   const recentTransactions = [
@@ -268,7 +299,7 @@ export default function Dashboard() {
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                   <User className="w-5 h-5 text-purple-600" />
                 </div>
-                <span className="text-sm font-medium text-gray-700">John Doe</span>
+                <span className="text-sm font-medium text-gray-700">{userName}</span>
               </Link>
               {/* Logout Icon Button */}
               <button
@@ -332,7 +363,7 @@ export default function Dashboard() {
             <div>
               <p className="text-sm font-medium text-gray-600">Today's Revenue</p>
               <p className="text-2xl font-bold text-gray-900">{todayStats.totalAmount}</p>
-              <p className="text-xs text-gray-500 mt-1">Weekly: {weeklyStats.totalRevenue}</p>
+              <p className="text-xs text-gray-500 mt-1">Weekly: 0</p>
             </div>
           </div>
 
@@ -380,19 +411,18 @@ export default function Dashboard() {
           <div className="bg-white rounded-xl shadow-sm border p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-orange-600" />
+                <Wallet className="w-6 h-6 text-orange-600" />
               </div>
               <div className="text-right">
                 <p className="text-sm text-orange-600 flex items-center">
-                  <Clock className="w-4 h-4 mr-1" />
-                  Peak: {todayStats.peakHour}
+                  {/* <Clock className="w-4 h-4 mr-1" /> */}
                 </p>
               </div>
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-600">Active Users</p>
-              <p className="text-2xl font-bold text-gray-900">1,247</p>
-              <p className="text-xs text-gray-500 mt-1">Online now: 23</p>
+              <p className="text-sm font-medium text-gray-600">Available Balance</p>
+              <p className="text-2xl font-bold text-gray-900">₹{todayStats.available}</p>
+              <p className="text-xs text-gray-500 mt-1">Online now: 1</p>
             </div>
           </div>
         </div>
