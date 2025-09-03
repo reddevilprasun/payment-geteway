@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 export default function PaytmConnect() {
     const [mobile, setMobile] = useState("");
-    const [token, setToken] = useState("");
+    const [token, setToken] = useState<any>(null);
     const [otp, setOtp] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
@@ -18,6 +18,7 @@ export default function PaytmConnect() {
         if (typeof window !== "undefined" && !localStorage.getItem('token')) {
             router.push('/login');
         }
+        setToken(localStorage.getItem("token"))
     }, []);
 
     const handleSendOtp = async (e: React.FormEvent) => {
@@ -25,6 +26,7 @@ export default function PaytmConnect() {
         setIsLoading(true);
 
         try {
+            if (!token) return;
             const res = await fetch("/api/paytm/send-otp", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -50,6 +52,7 @@ export default function PaytmConnect() {
         setIsLoading(true);
 
         try {
+            if (!token) return;
             // Replace with your actual Paytm OTP verification API endpoint
             const res = await fetch("/api/paytm/verify-otp", {
                 method: "POST",

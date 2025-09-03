@@ -37,7 +37,7 @@ import {
     AlertTriangle,
     ExternalLink,
     LogOut,
-    Power
+    Power, Receipt, QrCodeIcon, QrCode
 } from 'lucide-react';
 import {useRouter} from "next/navigation";
 
@@ -71,6 +71,8 @@ export default function Dashboard() {
     const [selectedTimeRange, setSelectedTimeRange] = useState('1d');
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [gatewayProfile, setGatewayProfile] = useState<any>(null);
+    const[amount, setAmount] = useState<string>("")
+    const[token, setToken] = useState<any>(null)
     const [todayStats, setTodayStats] = useState({
         totalAmount: "₹0",
         transactionCount: 0,
@@ -85,11 +87,17 @@ export default function Dashboard() {
         hourlyData: { hour: string; amount: number }[];
         paymentMethods: { method: string; percentage: number; amount: string }[];
     }>({hourlyData: [], paymentMethods: []});
-
+    useEffect(() => {
+        if (typeof window !== "undefined" && localStorage.getItem('token')) {
+            setUserName(localStorage.getItem("name") || "");
+            setToken(localStorage.getItem("token"));
+        } else {
+            router.push('/login');
+        }
+    }, []);
     useEffect(() => {
         // Fetch Paytm profile
         const fetchProfile = async () => {
-            const token = localStorage.getItem("token");
             if (!token) return;
             try {
                 const res = await fetch("/api/paytm/profile", {
@@ -101,6 +109,12 @@ export default function Dashboard() {
                 if (data.status && data.data) {
                     setIsPaytmConnected(true)
                     setGatewayProfile(data.data);
+                    let res2 = await fetch("/api/paytm/qr", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({token}),
+                    });
+                    console.log(await res2.json())
                 }
             } catch (err) {
                 setGatewayProfile(null);
@@ -109,7 +123,6 @@ export default function Dashboard() {
 
         // Fetch today's stats
         const fetchTodayStats = async () => {
-            const token = localStorage.getItem("token");
             if (!token) return;
             try {
                 const res = await fetch("/api/paytm/today", {
@@ -198,15 +211,9 @@ export default function Dashboard() {
 
         fetchProfile();
         fetchTodayStats();
-    }, []);
+    }, [token]);
 
-    useEffect(() => {
-        if (typeof window !== "undefined" && localStorage.getItem('token')) {
-            setUserName(localStorage.getItem("name") || "");
-        } else {
-            router.push('/login');
-        }
-    }, []);
+
 
     // Enhanced mock data
     const currentPlan = {
@@ -366,15 +373,21 @@ export default function Dashboard() {
                         </button>
                     </div>
                     <div className="flex items-center space-x-2">
+
+                        <input
+                            type="number"
+                            placeholder="Amount"
+                            maxLength={10}
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="w-1/2 flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            required
+                        />
                         <button
+                            onClick={()=>{ if (!amount) return; window.open(`/qr?token=${token}&amount=${amount}`, "_blank");}}
                             className="flex items-center space-x-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-                            <Download className="w-4 h-4"/>
-                            <span>Export</span>
-                        </button>
-                        <button
-                            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            <ExternalLink className="w-4 h-4"/>
-                            <span>API Docs</span>
+                            <span>Create</span>
+                            <QrCode className="w-4 h-4"/>
                         </button>
                     </div>
                 </div>

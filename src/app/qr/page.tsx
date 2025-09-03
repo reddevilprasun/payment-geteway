@@ -61,6 +61,8 @@ function QrPageContent() {
                 if (data.status === true) {
                     setPaymentSuccess(true);
                     clearInterval(interval);
+                }else if (seconds === 0){
+                    clearInterval(interval)
                 }
             } catch (err) {
                 // Optionally handle error
