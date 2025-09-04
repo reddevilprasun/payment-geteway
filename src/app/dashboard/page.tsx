@@ -1073,7 +1073,7 @@ export default function Dashboard() {
                 key={index}
                 className={`relative bg-white rounded-xl shadow-sm border p-6 transition-all hover:shadow-lg ${
                   plan.popular
-                    ? "ring-2 ring-purple-500 border-purple-500 transform scale-105"
+                    ? "ring-2 ring-purple-500 border-purple-500 transform scale-105 mx-2"
                     : ""
                 }`}
               >
