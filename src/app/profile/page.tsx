@@ -364,23 +364,23 @@ export default function Profile() {
                         </span>
                                             </div>
 
-                                            <div className="flex items-center space-x-2 mb-4">
-                                                <div className="flex-1 bg-gray-50 rounded-lg p-3 font-mono text-sm">
-                                                    {showApiKey ? apiKey.key : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
+                                            <div className="flex items-center gap-2 mb-4">
+                                                <div className="min-w-0 flex-1 bg-gray-50 rounded-lg p-3 font-mono text-sm overflow-hidden">
+                                                    <span className="block truncate">
+                                                        {showApiKey ? apiKey.key : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
+                                                    </span>
                                                 </div>
                                                 <button
                                                     onClick={() => setShowApiKey(!showApiKey)}
-                                                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                                    className="shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
                                                 >
-                                                    {showApiKey ? <EyeOff className="w-5 h-5"/> :
-                                                        <Eye className="w-5 h-5"/>}
+                                                    {showApiKey ? <EyeOff className="w-5 h-5"/> : <Eye className="w-5 h-5"/>}
                                                 </button>
                                                 <button
                                                     onClick={() => copyApiKey(apiKey.key)}
-                                                    className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                                                    className="shrink-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
                                                 >
-                                                    {copiedKey ? <CheckCircle className="w-5 h-5 text-green-500"/> :
-                                                        <Copy className="w-5 h-5"/>}
+                                                    {copiedKey ? <CheckCircle className="w-5 h-5 text-green-500"/> : <Copy className="w-5 h-5"/>}
                                                 </button>
                                             </div>
 
