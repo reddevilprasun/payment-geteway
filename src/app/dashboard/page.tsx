@@ -119,10 +119,11 @@ export default function Dashboard() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token }),
           });
-          console.log(await res2.json());
+        
         }
       } catch (err) {
-        setGatewayProfile(null);
+        console.log(err);
+        
       }
     };
 
